@@ -1,0 +1,182 @@
+#include <stdio.h> // printf()
+#include <conio.h> // getch()
+#include <windows.h>
+#include <stdbool.h>
+
+#define H 7
+#define W 12
+
+struct coord
+{
+   int x;
+   int y;
+};
+
+struct PacMan {
+   struct coord position;
+   int vx;
+   int vy;
+   int food_collected;
+};
+
+
+struct PacMan myPacMan = {
+                           {
+                              .x = 1,
+                              .y = 1,                              
+                           },
+                           .vx = 0,
+                           .vy = 0,
+                           .food_collected = 0
+                         };
+
+char playfield[H][W] =
+{
+{"############"},
+{"#011*1##11##"},
+{"#111111#111#"},
+{"#111*111111#"},
+{"#111111#111#"},
+{"#11111*111##"},
+{"############"}
+};
+
+
+/*void initialize()
+{
+   // 1. replace each empty field in the playfield
+   //    with a food field
+   for (int i = 0; i < H; i++)
+   {
+      for (int j = 0; j < W; j++)
+      {
+         if (playfield[i][j]=='1')
+            playfield[i][j] = '1';
+      }
+      	playfield[20][20] = '*';
+   }
+  
+
+} // initialize
+*/
+
+void user_input()
+{
+   if (kbhit()) //keyboard hit in, check in buffer
+   {
+	  char c1;
+      c1 = getch();
+
+      if (c1 == -32)
+      {
+         char c2 = getch();
+         myPacMan.vx = 0;
+         myPacMan.vy = 0;
+         
+         switch (c2)
+         {
+            case 72: myPacMan.vy = -1; break; // cursor up
+            case 80: myPacMan.vy = +1; break; // cursor down
+            case 75: myPacMan.vx = -1; break; // cursor left
+            case 77: myPacMan.vx = +1; break; // cursor right            
+         }
+         
+      }
+      
+      
+   }
+}
+
+
+void move_figures()
+{
+   // 1. delete PacMan from old position
+   playfield[myPacMan.position.y][myPacMan.position.x] = ' ';
+
+   // 2. compute new desired coordinate (nx,ny)
+   int nx = myPacMan.vx + myPacMan.position.x;
+   int ny = myPacMan.vy + myPacMan.position.y;
+
+   // 3. test whether there is a wall at (nx,ny)  
+   if (playfield[ny][nx] == '#')
+   {
+      // Damn! There is a wall! Stop PacMan!
+      myPacMan.vx = 0;
+      myPacMan.vy = 0;
+   }
+
+   // 4. update PacMan's coordinate
+   myPacMan.position.x += myPacMan.vx;
+   myPacMan.position.y += myPacMan.vy;
+
+   // 5. is there a food piece at the new location?
+   if (playfield[ny][nx] == '*')
+   {
+      myPacMan.food_collected++;
+   }
+
+   // 6. put PacMan back again to playfield
+   playfield[myPacMan.position.y][myPacMan.position.x] = '0';
+
+   
+}
+
+
+
+void show_playfield()
+{
+  for (int i = 0; i < H; i++)
+   {
+      for (int j = 0; j < W; j++)
+      {
+         printf("%c", playfield[i][j]);
+      }
+      printf("\n");
+   }
+
+   printf("Score: %d\n", myPacMan.food_collected);
+}
+
+
+// Set cursor position in console
+// see http://www.dreamincode.net/forums/topic/153240-console-cursor-coordinates/ 
+/*void set_cursor_position(int x, int y)
+{
+   //Initialize the coordinates
+   COORD coord = { x, y };
+   //Set the position
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+
+} // set_cursor_position
+*/
+
+/*void hidecursor()
+{
+   HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+   CONSOLE_CURSOR_INFO info;
+   info.dwSize = 100;
+   info.bVisible = FALSE;
+   SetConsoleCursorInfo(consoleHandle, &info);
+}*/
+
+
+int main()
+{
+   system("cls");
+   
+
+
+  // hidecursor();
+  // initialize();
+
+   while (1)
+   {
+      user_input();
+      move_figures();
+      show_playfield();
+
+      Sleep( 1000 / 1 );
+      //set_cursor_position(0,0);
+   }
+
+} // main
