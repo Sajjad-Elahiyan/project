@@ -116,7 +116,7 @@ void move_figures()
    }
 
    // 6. put PacMan back again to playfield
-   playfield[myPacMan.position.y][myPacMan.position.x] = '0';
+   playfield[myPacMan.position.y][myPacMan.position.x] = 'c';
 
    
 }
