@@ -1,0 +1,170 @@
+#include <stdio.h> // printf()
+#include <conio.h> // getch()
+#include <windows.h>
+#include <stdbool.h>
+
+#define H 7
+#define W 12
+
+struct coord
+{
+   int x;
+   int y;
+};
+
+struct PacMan {
+   struct coord position;
+   int vx;
+   int vy;
+   int food_collected;
+};
+
+
+struct PacMan myPacMan = {
+                           {
+                              .x = 1,
+                              .y = 1,                              
+                           },
+                           .vx = 0,
+                           .vy = 0,
+                           .food_collected = 0
+                         };
+
+char playfield[H][W] = 
+{
+{"############"},
+{"#011*1##11##"},
+{"#111111#111#"},
+{"#111*111111#"},
+{"#111111#111#"},
+{"#11111*111##"},
+{"############"}
+};
+
+
+void user_input()
+{
+   if (kbhit()) //keyboard hit in,it check the buffer
+   {
+	  char c1;
+      c1 = getch();
+
+      if (c1 == -32)
+      {
+         char c2 = getch();
+         myPacMan.vx = 0;
+         myPacMan.vy = 0;
+         
+         switch (c2)
+         {
+            case 72: myPacMan.vy = -1; break; // cursor up
+            case 80: myPacMan.vy = +1; break; // cursor down
+            case 75: myPacMan.vx = -1; break; // cursor left
+            case 77: myPacMan.vx = +1; break; // cursor right           
+         }	   
+      }
+   }
+}
+
+
+void move_figures()
+{
+   // 1. delete PacMan from old position
+   playfield[myPacMan.position.y][myPacMan.position.x] = ' ';
+
+   // 2. compute new desired coordinate (nx,ny)
+   int nx = myPacMan.vx + myPacMan.position.x;
+   int ny = myPacMan.vy + myPacMan.position.y;
+
+   // 3. test there is a wall at (nx,ny)  
+   if (playfield[ny][nx] == '#')
+   {
+      // There is a wall! Stop PacMan!
+      myPacMan.vx = 0;
+      myPacMan.vy = 0;
+   }
+
+   // 4. update PacMan's coordinate
+   myPacMan.position.x += myPacMan.vx;
+   myPacMan.vx = 0;
+   myPacMan.position.y += myPacMan.vy;
+   myPacMan.vy = 0;
+
+   // 5. is there a food piece at the new location?
+   if (playfield[ny][nx] == '*')
+   {
+      myPacMan.food_collected++;
+   }
+
+   // 6. put PacMan back again to playfield
+   playfield[myPacMan.position.y][myPacMan.position.x] = '0';
+}
+
+
+void show_playfield()
+{
+  for (int i = 0; i < H; i++)
+   {
+      for (int j = 0; j < W; j++)
+      {
+         printf("%c", playfield[i][j]);
+      }
+      printf("\n");
+   }
+
+   printf("Score: %d\n", myPacMan.food_collected);
+}
+
+
+// Set cursor position in console
+void set_cursor_position(int x, int y)
+{
+   //Initialize the coordinates
+   COORD coord = { x, y };
+   //Set the position
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+} 
+
+
+int main()
+{
+   FILE *ptr;
+   ptr = fopen ("testcase02.txt","r");
+   /*if (ptr == NULL)
+   {
+   	printf ("ahhhhh");
+   }*/
+   char c ;
+  /* while (feof(ptr)==0)
+   {
+   	for (int i = 0 ; i < H ; i++)
+   	{
+   		for (int j = 0 ; j < W ; j++)
+		{
+   			c = fgetc(ptr);
+   			playfield[i][j] = c ;
+   		}
+   	}
+   	 
+   }*/
+   
+
+   system("cls");
+   
+   while (1)
+   {
+   	
+      user_input();
+      move_figures();
+      show_playfield();
+
+      Sleep( 1000 / 10 );
+      set_cursor_position(0,0);
+      if (myPacMan.food_collected == 3)
+      {
+      	printf ("You Win (:");
+      	break;
+      	fclose(ptr);
+      }
+   }
+} 
