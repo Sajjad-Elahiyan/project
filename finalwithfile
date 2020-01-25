@@ -1,0 +1,195 @@
+#include <stdio.h> // printf()
+#include <conio.h> // getch()
+#include <windows.h>
+
+
+#define H 7
+#define W 12
+
+struct coord
+{
+   int x;
+   int y;
+};
+
+struct PacMan {
+   struct coord position;
+   int vx;
+   int vy;
+   int food_collected;
+};
+
+
+struct PacMan myPacMan = {
+                           {
+                              .x = 1,
+                              .y = 1,                              
+                           },
+                           .vx = 0,
+                           .vy = 0,
+                           .food_collected = 0
+                         };
+
+char playfield[H][W] = 
+{
+{"############"},
+{"#011*1##11##"},
+{"#111111#111#"},
+{"#111*111111#"},
+{"#111111#111#"},
+{"#11111*111##"},
+{"############"}
+};
+
+int ttt , TTT;
+void user_input()
+{
+   if (kbhit()) //keyboard hit in,it check the buffer
+   {
+	  char c1;
+      c1 = getch();
+
+      if (c1 == -32)
+      {
+         char c2 = getch();
+         myPacMan.vx = 0;
+         myPacMan.vy = 0;
+         
+         switch (c2)
+         {
+            case 72: myPacMan.vy = -1; break; // up
+            case 80: myPacMan.vy = 1; break; // down
+            case 75: myPacMan.vx = -1; break; // left
+            case 77: myPacMan.vx = 1; break; // right           
+         }	   
+      }
+   }
+}
+
+
+void move_figures()
+{
+   // delete PacMan
+   ttt = myPacMan.position.x , TTT = myPacMan.position.y;
+   playfield[myPacMan.position.y][myPacMan.position.x] = '1';
+
+   //new coord
+   int nx = myPacMan.vx + myPacMan.position.x;
+   int ny = myPacMan.vy + myPacMan.position.y;
+
+   // check wall 
+   if (playfield[ny][nx] == '#')
+   {
+      // wall
+      myPacMan.vx = 0;
+      myPacMan.vy = 0;
+   }
+
+   // PacMan's coord
+   myPacMan.position.x += myPacMan.vx;
+   myPacMan.vx = 0 ;
+   myPacMan.position.y += myPacMan.vy;
+   myPacMan.vy = 0 ;
+
+   // food
+   if (playfield[ny][nx] == '*')
+   {
+      myPacMan.food_collected++;
+   }
+
+   // PacMan back 
+   playfield[myPacMan.position.y][myPacMan.position.x] = '0';
+//   playfield[TTT][ttt] = '1';
+}
+
+
+void show_playfield()
+{
+  for (int i = 0; i < H; i++)
+   {
+      for (int j = 0; j < W; j++)
+      {
+         printf("%c", playfield[i][j]);
+      }
+      printf("\n");
+   }
+
+   printf("Score: %d\n", myPacMan.food_collected);
+}
+
+
+// Set cursor position in console
+void set_cursor_position(int x, int y)
+{
+   //Initialize the coordinates
+   COORD coord = { x, y };
+   //Set the position
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+} 
+
+
+int main()
+{
+//	printf("HWLLO\n");
+    FILE *ptr;
+    ptr = fopen ("testcase02.txt","r");
+   /*if (ptr == NULL)
+   {
+   	printf ("ahhhhh");
+   }*/
+   char c ;
+  
+   
+   system("cls");
+   
+   while (1)
+   {
+  /* 	 while (feof(ptr)==0)
+   {
+   	for (int i = 0 ; i < H ; i++)
+   	{
+   		for (int j = 0 ; j < W ; j++)
+		{
+   			c = fgetc(ptr);
+   			playfield[i][j] = c ;
+   		}
+   	}
+   	 
+   }*/
+   		int I, J,temp;
+   	
+   while (feof(ptr) == 0)
+   {
+   		
+   			c = fgetc(ptr);
+		   if( c == '\n')
+		   {
+		   	I ++ ;
+		   	temp = J;
+		   	J = 0;
+		   	continue;
+		   }
+		   playfield[I][J] = c;
+		   
+   }
+   J = temp;
+   //printf("HELLO");
+   for(int i = 0 ;i < I; ++ i)
+   for(int j = 0 ; j < J; ++ j)
+   printf("%c " , playfield[i][j]);
+   	
+      user_input();
+      move_figures();
+    //  playfield[TTT][ttt]= '1';
+      show_playfield();
+
+      Sleep( 1000 / 10 );
+      set_cursor_position(0,0);
+      if (myPacMan.food_collected == 3)
+      {
+      	printf ("You Win (:");
+     	break;
+    	fclose(ptr);
+      }
+    }
+} 
